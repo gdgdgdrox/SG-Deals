@@ -1,0 +1,103 @@
+package com.sgdeals.server.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.sgdeals.server.Utils;
+import com.sgdeals.server.model.Deal;
+import com.sgdeals.server.service.UserService;
+
+import jakarta.json.JsonObject;
+
+@RestController
+@CrossOrigin(origins = "*")
+@RequestMapping(path="api/user")
+public class UserController {
+
+    @Autowired
+    private UserService userService;
+    
+    @PostMapping(path="/register")
+    public ResponseEntity<String> registerNewUser(@RequestBody String payload){
+        JsonObject userDetails = Utils.payloadToJson(payload);
+        String email = userDetails.getString("email");
+        String response = "";
+        if (userService.userExists(email)){
+            response = Utils.createResponse("message", "Email already exists.");
+            return ResponseEntity.status(409).body(response);
+        }
+        int added = userService.registerNewUser(userDetails);
+        if (added == 1){
+            response = Utils.createResponse("email", email);
+            return ResponseEntity.status(201).body(response);
+        }
+        else {
+            response = Utils.createResponse("message", "Unknown error. Please try again later.");
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @PostMapping(path="/login")
+    public ResponseEntity<String> checkLoginCredentials(@RequestBody String payload){
+        JsonObject creds = Utils.payloadToJson(payload);
+        boolean isVerified = userService.verifyUserCreds(creds);
+        String response = "";
+        if (isVerified){
+            String email = creds.getString("email");
+            response = Utils.createResponse("email", email);
+            return ResponseEntity.ok(response);
+        }
+        else{
+            response = Utils.createResponse("message", "Invalid email or password");
+            return ResponseEntity.status(401).body(response);
+        }
+    }
+
+    
+    @PostMapping(path="/deal/save")
+    public ResponseEntity<String> saveUserDeal(@RequestBody String payload){
+        JsonObject emailAndDealIDs = Utils.payloadToJson(payload);
+        boolean saveSuccess = userService.saveUserDeal(emailAndDealIDs);
+        String response = "";
+        if (saveSuccess){
+            response = Utils.createResponse("message", "deals were successfully saved");
+            return ResponseEntity.ok().body(response);
+        }
+        else{
+            response = Utils.createResponse("message", "error saving deals");
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+    
+    @PostMapping(path="/deal/get")
+    public ResponseEntity<List<Deal>> getUserDeals(@RequestBody String payload){
+        String email = Utils.payloadToJson(payload).getString("email");
+        List<Deal> userDeals = userService.getUserDeal(email);
+        return ResponseEntity.ok(userDeals);
+    }
+
+    @DeleteMapping(path="/deal/delete")
+    public ResponseEntity<String> deleteUserDeal(@RequestBody String payload){
+        JsonObject emailAndDealID = Utils.payloadToJson(payload);
+        int deleteCount = userService.deleteUserDeal(emailAndDealID);
+        String response = "";
+        if (deleteCount == 1){
+            response = Utils.createResponse("message", "successfully deleted");
+            return ResponseEntity.ok(response);
+        }
+        else{
+            response = Utils.createResponse("message", "Unknown error. Please try again later.");
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+
+}
