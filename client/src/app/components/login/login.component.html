@@ -3,13 +3,27 @@
       <div class="col-lg-4 bg-white m-auto">
         <h2 class="bg-success text-white text-center pt-3 pb-3">Login</h2>
         <form (ngSubmit)="login(loginForm)" #loginForm="ngForm">
-          <div class="input-group mb-3">
-            <span class="input-group-text"><i class="fa fa-envelope"></i></span>
-            <input type="email" class="form-control" placeholder="Email" name="email" required email [(ngModel)]="email">
+          <div>
+            <div class="input-group mb-3">
+              <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+              <input type="email" class="form-control" placeholder="Email" name="email" required email [(ngModel)]="credentials.email" #emailNgModel="ngModel">
+            </div>
+            <div>
+              <p *ngIf="emailNgModel.errors && emailNgModel.dirty" class="text-danger">
+                <em>Please enter a valid email</em>
+              </p>
+            </div>
           </div>
-          <div class="input-group mb-3">
-            <span class="input-group-text"><i class="fa fa-lock"></i></span>
-            <input type="password" class="form-control" placeholder="Password" name="password" minlength="7" required [(ngModel)]="password">
+          <div>
+            <div class="input-group mb-3">
+              <span class="input-group-text"><i class="fa fa-lock"></i></span>
+              <input type="password" class="form-control" placeholder="Password" name="password" minlength="7" required [(ngModel)]="credentials.password" #passwordNgModel="ngModel">
+            </div>
+            <div>
+              <p *ngIf="passwordNgModel.errors && passwordNgModel.dirty" class="text-danger">
+                <em>Your password should have at least 7 characters</em>
+              </p>
+            </div>
           </div>
           <div class="d-grid">
             <button type="submit" class="btn btn-success" [disabled]="loginForm.invalid || isLoading" >Login</button>

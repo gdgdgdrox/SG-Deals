@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from '../../services/user.service';
+import { CurrentUser } from 'src/app/model';
 
 @Component({
   selector: 'app-header',
@@ -7,27 +8,17 @@ import { UserService } from '../../services/user.service';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit{
-  loggedInEmail = '';
+  currentUser!: CurrentUser;
 
   constructor(private userService: UserService){}
 
   ngOnInit(): void{
-    this.userService.onUser.subscribe(email => {
-      console.log(`email : ${email}`);
-      this.loggedInEmail = email;
+    this.userService.currentUserSubject$.subscribe(currentUser => {
+      this.currentUser = currentUser;
     });
   }
 
-
   logout(){
-    console.log(`logging out ${this.loggedInEmail}`);
-    //check if user has any deals that he wanted to save. if yes, save deals before logging out.
-    if (this.userService.isLoggedIn && this.userService.dealIDsForSaving.length > 0){
-      this.userService.saveUserDeal(this.userService.getLoggedInUserEmail(), this.userService.dealIDsForSaving);
-    }
-    this.loggedInEmail = '';
     this.userService.logout();
   }
-
-
 }

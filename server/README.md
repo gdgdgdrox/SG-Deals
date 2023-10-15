@@ -18,7 +18,8 @@ Redis
 DigitalOcean Spaces
 
 ### Deployment
-Containerized using Docker and deployed to Railway  
+Angular deployed to Vercel
+Spring Boot containerized using Docker and deployed to Railway  
 Github Actions for CI/CD
 
 ## Demonstration

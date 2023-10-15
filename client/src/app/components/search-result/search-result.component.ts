@@ -4,6 +4,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import { UserService } from '../../services/user.service';
 import { Deal } from '../../model';
+import { environment } from 'src/app/environments/environment.secret';
+import { LocationMapComponent } from '../location-map/location-map.component';
+
 
 
 @Component({
@@ -13,9 +16,9 @@ import { Deal } from '../../model';
 })
 export class SearchResultComponent implements OnInit{
   dealCategory!: string;
-  deals!: Deal[];
-  searchError!: any;
+  deals: Deal[] = [];
   dealIDsForSaving: string[] = [];
+  searchError: string = '';
   isLoading = false;
 
   constructor(
@@ -23,42 +26,38 @@ export class SearchResultComponent implements OnInit{
     private searchSvc: SearchService, 
     public sanitizer: DomSanitizer,
     private userService: UserService,
-    private router: Router
+    private router: Router,
     ){}
 
   ngOnInit(): void {
-    console.log('in search result oninit');
     this.isLoading = true;
     this.dealCategory = this.activatedRoute.snapshot.params['category'];
-  
     if (this.dealCategory){
-      this.searchSvc.searchDealsByCategory(this.dealCategory);
-    }
+      this.searchSvc.searchDealsByCategory(this.dealCategory)
+        .then((data:Deal[]) => {
+          this.deals = data
+        })
+        .catch(error => this.searchError = 'Something went wrong with the search. Please try again later')
+        .finally(() => this.isLoading = false)
+      }
     else{
       const searchKeyword = this.activatedRoute.snapshot.queryParams['keyword'];
       this.searchSvc.searchDealsByKeyword(searchKeyword)
+        .then((data:Deal[]) => this.deals = data)
+        .catch(error => this.searchError = 'Something went wrong with the search. Please try again later')
+        .finally(() => this.isLoading = false)
+      }
     }
-    this.searchSvc.onSearch.subscribe({
-      next: (data) => {
-        this.isLoading = false;
-        this.deals = data;
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.searchError = error;
-      },
-    });
-  }
-
-  ngOnDestroy(): void {
-    if (this.userService.isLoggedIn && this.dealIDsForSaving.length > 0){
-      this.saveDeal(this.userService.getLoggedInUserEmail(), this.dealIDsForSaving);
+    
+    ngOnDestroy(): void {
+    if (this.userService.currentUser.email && this.dealIDsForSaving.length > 0){
+      this.saveDeal(this.userService.currentUser.email, this.dealIDsForSaving);
     }
   }
-
+  
   toggleSave(uuid:string, idx: number) {
     // check if user is login. if not logged in, dont allow them to toggle and direct them to login page instead
-    if (!this.userService.isLoggedIn){
+    if (!this.userService.currentUser.email){
       this.router.navigate(['/login']);
     }
     else{
@@ -76,11 +75,11 @@ export class SearchResultComponent implements OnInit{
       }
     }
   }
-
+  
   saveDeal(email: string, dealIDsForSaving: string[]){
     this.userService.saveUserDeal(email, dealIDsForSaving); 
   }
-
+  
   shareDeal(deal:Deal){
     if (navigator.share) {
       navigator.share({
@@ -98,6 +97,6 @@ export class SearchResultComponent implements OnInit{
         console.error('Web Share API is not supported in this browser');
       }
     }
-
+    
 
 }

@@ -10,7 +10,7 @@ export class GuardService implements CanActivate {
   constructor(private userService: UserService, private router: Router) { }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | Observable<boolean> | Promise<boolean> {
-    if (this.userService.isLoggedIn){
+    if (this.userService.currentUser.email){
       return true;
     }
     else{

@@ -76,10 +76,10 @@ public class SqlQueries {
             (select deal_id from deal_details where valid_end_date <= NOW());
             """;
     
-    public static final String USER_EXIST = "SELECT count(*) FROM user_info WHERE EMAIL = ?;";
+    public static final String USER_EXIST = "SELECT count(*) FROM users WHERE EMAIL = ?;";
 
     public static final String CREATE_USER = """
-        INSERT INTO user_info (
+        INSERT INTO users (
             email,
             password,
             first_name,
@@ -89,7 +89,7 @@ public class SqlQueries {
         )
         VALUES (
             ?,
-            sha(?),
+            ?,
             ?,
             ?,
             ?,
@@ -97,9 +97,9 @@ public class SqlQueries {
         );
             """;
 
-    public static final String SAVE_USER_DEAL = "INSERT INTO user_deal (email, deal_id) VALUES (?, ?);";
+    public static final String SAVE_USER_DEALS = "INSERT INTO user_deals (email, deal_id) VALUES (?, ?);";
 
-    public static final String GET_USER_DEAL = """
+    public static final String GET_USER_DEALS = """
                 SELECT 
                     deal_id, 
                     name, 
@@ -118,12 +118,14 @@ public class SqlQueries {
                 WHERE
                     deal_id
                 IN 
-                    (SELECT deal_id from user_deal where email = ?);
+                    (SELECT deal_id from user_deals where email = ?);
             """;
     
-    public static final String VERIFY_USER_CREDS = "SELECT count(*) FROM user_info WHERE email = ? AND password = sha(?);";
+    // public static final String VERIFY_USER_CREDS = "SELECT count(*) FROM users WHERE email = ? AND password = sha(?);";
 
-    public static final String DELETE_USER_DEAL = "DELETE FROM user_deal WHERE email= ? AND deal_id = ?;";
+    public static final String DELETE_USER_DEALS = "DELETE FROM user_deals WHERE email= ? AND deal_id = ?;";
 
-    public static final String GET_SUBSCRIBERS_EMAIL = "SELECT email FROM user_info WHERE receive_update = true;";
+    public static final String GET_SUBSCRIBERS_EMAIL = "SELECT email FROM users WHERE receive_update = true;";
+
+    public static final String GET_USER_BY_EMAIL= "SELECT * FROM users WHERE email = ?";
 }

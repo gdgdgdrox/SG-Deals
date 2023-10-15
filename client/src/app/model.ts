@@ -27,3 +27,8 @@ export interface Credentials{
     email: string,
     password: string
 }
+
+export interface CurrentUser{
+    email: string,
+    password: string
+}
