@@ -3,14 +3,16 @@
 
 This application retrieves a list of deals (i.e. promotions) from an [API](https://tih-dev.stb.gov.sg/deals-user-and-provider-api/apis/get/content/deals/v2/search) maintained by the Singapore Tourism Information & Services Hub (TIH).
 
+Website is live at: https://sg-deal-finder-gdgdgdrox.vercel.app/#/
+
 ## Technical Stack
 
 ### Client
-Angular  
+Angular
 Bootstrap
 
 ### Server
-Spring Boot
+Spring Boot (Spring MVC, Spring Security, Spring Data)
 
 ### Persistence
 MySQL  
