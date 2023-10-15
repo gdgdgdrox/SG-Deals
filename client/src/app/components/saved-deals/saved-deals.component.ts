@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { UserService } from '../../services/user.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { Router } from '@angular/router';
-import { Deal } from '../../model';
+import { CurrentUser, Deal } from '../../model';
 
 @Component({
   selector: 'app-saved-deals',
@@ -11,7 +11,7 @@ import { Deal } from '../../model';
   styleUrls: ['./saved-deals.component.css']
 })
 export class SavedDealsComponent implements OnInit{
-  email = '';
+  currentUser!: CurrentUser;
   userDeals: Deal[] = [];
   deleteErrorMessage = '';
   isLoading = true;
@@ -24,8 +24,8 @@ export class SavedDealsComponent implements OnInit{
     ){}
 
   ngOnInit(): void{
-    this.email = this.userService.getLoggedInUserEmail();
-    setTimeout(() => this.getUserDeal(this.email) ,3*1000)
+    this.currentUser = this.userService.currentUser;
+    setTimeout(() => this.getUserDeal(this.currentUser.email) ,3*1000)
   }
 
   getUserDeal(email: string){
@@ -35,7 +35,6 @@ export class SavedDealsComponent implements OnInit{
         this.isLoading = false;
       },
       error: (error) => {
-        console.error(error);
         this.isLoading = false;
       }
     })
@@ -43,12 +42,11 @@ export class SavedDealsComponent implements OnInit{
 
   deleteDeal(uuid: string){
     this.userService.removeDeal(uuid);
-    this.userService.deleteUserDeal(this.email, uuid)
+    this.userService.deleteUserDeal(uuid)
     .then(resp => {
         this.userDeals = this.userDeals.filter(deal => deal.uuid !== uuid);
       })
     .catch(error => {
-      console.error(error);
       this.deleteErrorMessage = error.message;
     });
     

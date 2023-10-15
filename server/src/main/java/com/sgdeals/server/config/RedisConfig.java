@@ -10,43 +10,17 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.springframework.web.client.RestTemplate;
-
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
 @Configuration
-public class AppConfig {
-    
-    @Bean
-    public RestTemplate restTemplate(){
-        return new RestTemplate();
-    }
+public class RedisConfig {
 
-    @Value("${spaces.access.key}")
-    private String accessKey;
-    @Value("${spaces.secret.key}")
-    private String secretKey;
+ 
     @Value("${spring.redis.host}")
     private String redisHost;
     @Value("${spring.redis.port}")
     private Integer redisPort;
-    // @Value("${spring.redis.password}")
-    // private String redisPassword;
-
-    @Bean
-    public AmazonS3 getS3Client(){
-        BasicAWSCredentials cred = new BasicAWSCredentials(accessKey, secretKey);
-
-        EndpointConfiguration epConfig = new EndpointConfiguration("sgp1.digitaloceanspaces.com", "sgp1");
-
-        return AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(cred))
-                                                .withEndpointConfiguration(epConfig)
-                                                .build();
-    }
+    @Value("${spring.redis.password}")
+    private String redisPassword;
 
     @Bean
     public RedisTemplate<String, Object> initRedisTemplate() {
@@ -54,7 +28,7 @@ public class AppConfig {
         RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration();
         redisConfig.setHostName(redisHost);
         redisConfig.setPort(redisPort);
-        // redisConfig.setPassword(redisPassword);
+        redisConfig.setPassword(redisPassword);
 
         // Create an instance of the Jedis driver
         JedisClientConfiguration jedisConfig = JedisClientConfiguration.builder().build();
@@ -68,8 +42,6 @@ public class AppConfig {
         redisTemplate.setConnectionFactory(jedisFac);
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         RedisSerializer<Object> serializer = new JdkSerializationRedisSerializer(getClass().getClassLoader());
-        // Jackson2JsonRedisSerializer<Deal> jackson2JsonJsonSerializer = 
-        //                     new Jackson2JsonRedisSerializer<Deal>(Deal.class);
         redisTemplate.setValueSerializer(serializer);
         return redisTemplate;
     }

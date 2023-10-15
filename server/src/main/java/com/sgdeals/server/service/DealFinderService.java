@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class DealFinder {
+public class DealFinderService {
     
     @Autowired
     private RestTemplate restTemplate;
@@ -42,9 +42,6 @@ public class DealFinder {
 
     @Autowired
     private SqlRepository sqlRepo;
-
-    // @Autowired
-    // private EmailService emailService;
 
     @Value("${tih.api.key}")
     private String apiKey;
@@ -111,9 +108,7 @@ public class DealFinder {
                     deal.setImageURL(imageURL);
                     deals.add(deal);
                 }
-                else{
-                    deal.setImageURL("C:/Users/gdfoo/Desktop/final_project/server/src/main/resources/static/no-image-available-icon-6.png");
-                }
+
 
             }
         }
@@ -174,11 +169,6 @@ public class DealFinder {
             log.info("Saving new deals");
             sqlRepo.saveDealsAndDetails(newDeals);
             log.info("{} new deals saved", newDeals.size());
-            // List<String> subscriberEmails = emailService.getSubscribersEmail();
-            // if (subscriberEmails.size() > 0){
-            //     emailService.sendEmail(subscriberEmails, newDeals);
-            // }
-
         }
         else{
             log.info("No new deals found.");

@@ -9,7 +9,7 @@ import { NgForm } from '@angular/forms';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
-  constructor(private searchSvc: SearchService, private router: Router){}
+  constructor(private router: Router){}
 
   searchByCategory(category: string){
     this.router.navigate(['deals', `${category}`]);

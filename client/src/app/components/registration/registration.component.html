@@ -24,7 +24,7 @@
           <div>
             <div class="input-group mb-3">
               <span class="input-group-text">Date of Birth</span>
-              <input type="date" class="form-control" formControlName="dob">
+              <input type="date" class="form-control" formControlName="dob" [max]="maxDate">
             </div>
             <p *ngIf="form.controls['dob'].invalid && form.controls['dob'].dirty" class="text-danger">
               <em>Please select your date of birth</em>

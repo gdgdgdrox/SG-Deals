@@ -1,4 +1,5 @@
 node_modules/
+client/src/app/environments/environment.secret.ts
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar

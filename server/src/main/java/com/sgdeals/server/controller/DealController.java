@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,15 +12,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sgdeals.server.model.Deal;
-import com.sgdeals.server.service.DealFinder;
+import com.sgdeals.server.service.DealFinderService;
 
 @RestController
-@RequestMapping(path="api")
-@CrossOrigin(origins = "*")
+@RequestMapping(path="api/v1")
 public class DealController {
     
     @Autowired
-    private DealFinder dealFinder;
+    private DealFinderService dealFinder;
 
     @GetMapping(path="/deals/{category}", produces=MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Deal>> getDealsByCategory(@PathVariable String category){

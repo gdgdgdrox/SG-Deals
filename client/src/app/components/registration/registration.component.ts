@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { UserService } from '../../services/user.service';
-import { NewUser } from '../../model';
+import { CurrentUser, NewUser } from '../../model';
+import { RegistrationService } from 'src/app/services/registration.service';
 
 @Component({
   selector: 'app-registration',
@@ -13,8 +14,12 @@ export class RegistrationComponent implements OnInit {
   isLoading = false;
   successMessage = '';
   errorMessage = '';
+  maxDate: string = new Date().toISOString().split('T')[0];
 
-  constructor(private fb: FormBuilder, private userService: UserService){}
+  constructor(
+    private fb: FormBuilder, 
+    private userService: UserService,
+    private registrationService: RegistrationService){}
 
   ngOnInit(): void {
     this.form = this.createForm();
@@ -34,19 +39,21 @@ export class RegistrationComponent implements OnInit {
   register(){
     this.isLoading = true;
     const user = this.form.value as NewUser;
-    this.userService.register(user)
+    this.registrationService.register(user)
       .then(response => {
-        setTimeout(() => {
-          this.userService.onUser.next(response.email);
-          this.userService.loggedInUserEmail = response.email;
-          this.userService.isLoggedIn = true;
-          this.isLoading=false;
-          this.successMessage = 'Account was successfully created!'
-          this.errorMessage = '';
-        },2*1000)
+        if (response.email === user.email){
+          setTimeout(() => {
+            const currentUser = {email: user.email, password:user.password};
+            this.userService.currentUser = currentUser
+            this.userService.currentUserSubject$.next(currentUser);
+            this.isLoading=false;
+            this.successMessage = 'Account was successfully created!'
+            this.errorMessage = '';
+          },2*1000)
+        }
       })
       .catch(error => {
-        console.log(error);
+        console.log('error:',error);
         setTimeout(() => {
           this.isLoading=false;
           this.errorMessage = error.error.message;

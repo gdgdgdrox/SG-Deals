@@ -1,81 +1,72 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Subject, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { Router } from '@angular/router';
-import { Credentials, Deal, NewUser } from '../model';
+import { Credentials, CurrentUser, Deal, NewUser } from '../model';
+import { environment } from '../environments/environment';
+import { AppConstants } from '../constants/app.constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  isLoggedIn = false;
-  loggedInUserEmail = '';
-  onUser = new Subject<string>();
+  currentUser: CurrentUser = {email:'',password:''}
+  currentUserSubject$: BehaviorSubject<CurrentUser> = new BehaviorSubject<CurrentUser>({email: '',password:''});
   dealIDsForSaving: string[] = [];
   constructor(private http: HttpClient, private router: Router) { }
 
-  register(newUser: NewUser){
-    return firstValueFrom(this.http.post<any>('http://localhost:8080/api/user/register', newUser));
-  }
-
-  login(credentials: Credentials){
-    return firstValueFrom(this.http.post<any>('http://localhost:8080/api/user/login', credentials));
-  }
-
-  logout(){
-    this.isLoggedIn = false;
-    this.loggedInUserEmail = '';
-    this.router.navigate(['/']);
-  }
-
-  getLoggedInUserEmail(){
-    return this.loggedInUserEmail;
-  }
-  
   addDeal(uuid: string){
     this.dealIDsForSaving.push(uuid);
   }
 
   removeDeal(uuid: string){
-    console.log('in remove deal function');
     const index = this.dealIDsForSaving.findIndex(dealUUID => dealUUID === uuid);
     if (index !== -1) {
-      console.log(`found deal ${uuid} to delete`);
       this.dealIDsForSaving.splice(index, 1);
-      console.log(this.dealIDsForSaving.length);
     }
   }
 
   saveUserDeal(email: string, dealIDsForSaving: string[]){
+    const headers = new HttpHeaders(this.currentUser ? { authorization : 'Basic ' + btoa(this.currentUser.email + ':' + this.currentUser.password)} : {});
     const payload = {
       email: email,
       dealIDs: dealIDsForSaving
     };
-    this.http.post('http://localhost:8080/api/user/deal/save', payload).subscribe({
+    // this.http.post(AppConstants.SAVE_USER_DEAL_API, payload, {headers})
+
+    this.http.post(environment.rooturl + AppConstants.SAVE_USER_DEAL_API, payload, {headers})
+    .subscribe({
       next: (resp:any) => {
         console.log(resp);
     }, error: err => {
-        console.log(err);
+        // console.log(err);
     }});
   }
 
   getUserDeal(email: string){
-    return this.http.post<Deal[]>('http://localhost:8080/api/user/deal/get', {email});
+    const headers = new HttpHeaders(this.currentUser ? { authorization : 'Basic ' + btoa(this.currentUser.email + ':' + this.currentUser.password)} : {});
+    // return this.http.get<Deal[]>(AppConstants.GET_USER_DEAL_API, {headers});
+
+    return this.http.get<Deal[]>(environment.rooturl + AppConstants.GET_USER_DEAL_API, {headers});
   }
 
 
-  deleteUserDeal(email: string, dealID: string) {
-    const url = 'http://localhost:8080/api/user/deal/delete';
-    const options = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-      }),
-      body: {
-        email,
-        dealID,
-      },
-    };
-    return firstValueFrom(this.http.delete(url, options));
+  deleteUserDeal(dealID: string) {
+    // const url = AppConstants.DELETE_USER_DEAL_API + '/' + dealID;
+
+    const url = environment.rooturl + AppConstants.DELETE_USER_DEAL_API + '/' + dealID;
+    const headers = new HttpHeaders(this.currentUser ? { authorization : 'Basic ' + btoa(this.currentUser.email + ':' + this.currentUser.password)} : {});
+    
+    return firstValueFrom(this.http.delete(url, {headers}));
+  }
+
+  logout(){
+    if (this.currentUser.email && this.dealIDsForSaving.length > 0){
+      this.saveUserDeal(this.currentUser.email, this.dealIDsForSaving);
+    }
+    this.currentUser = {email:'',password:''};
+    this.currentUserSubject$.next({email:'',password:''});
+    this.router.navigate(['/']);
   }
   
 }

@@ -20,7 +20,14 @@ public class UserService {
     private UserRepository userRepo;
 
     public int registerNewUser(JsonObject userDetails){
-        return userRepo.registerNewUser(userDetails);
+        try {
+            int added = userRepo.registerNewUser(userDetails);
+            return added;
+        }
+        catch (Exception ex){
+            ex.printStackTrace();
+            return 0;
+        }
     }
 
     public boolean userExists(String email){
@@ -48,14 +55,7 @@ public class UserService {
         return userRepo.getUserDeal(email);
     }
 
-    public boolean verifyUserCreds(JsonObject creds){
-        boolean isVerified = userRepo.verifyUserCreds(creds) == 1 ? true : false;
-        return isVerified;
-    }
-
-    public int deleteUserDeal(JsonObject emailAndDealID){
-        String email = emailAndDealID.getString("email");
-        String dealID = emailAndDealID.getString("dealID");
+    public int deleteUserDeal(String email, String dealID){
         int deleteCount = userRepo.deleteUserDeal(email, dealID);
         return deleteCount;
     }

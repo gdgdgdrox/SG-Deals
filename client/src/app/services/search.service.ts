@@ -1,36 +1,31 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Observable, Subject, firstValueFrom } from 'rxjs';
 import { Deal } from '../model';
+import { environment } from '../environments/environment';
+import { AppConstants } from '../constants/app.constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SearchService {
-  onSearch = new Subject<any>();
+  onSearch$ = new Subject<any>();
   
   constructor(private httpClient: HttpClient) { }
 
-  searchDealsByCategory(category: string){
-    console.log('searching deals by category');
+  searchDealsByCategory(category: string): Promise<Deal[]>{
     const headers = new HttpHeaders().set('accept', 'application/json');
-    this.httpClient.get<Deal[]>(`http://localhost:8080/api/deals/${category}`, {headers}).subscribe({
-      next: (data) => {
-        this.onSearch.next(data);
-      },
-      error: (error) => this.onSearch.next(error),
-    });
+    // return firstValueFrom(this.httpClient.get<Deal[]>(AppConstants.DEALS_API_URL +  '/' + category, {headers}));
+
+    return firstValueFrom(this.httpClient.get<Deal[]>(environment.rooturl + AppConstants.DEALS_API_URL +  '/' + category, {headers}));
   }
   
-  searchDealsByKeyword(keyword: string){
-    console.log('searching deals by keyword');
+  searchDealsByKeyword(keyword: string): Promise<Deal[]>{
     const headers = new HttpHeaders().set('accept', 'application/json');
-    this.httpClient.get<Deal[]>(`http://localhost:8080/api/deals`, {headers, params: {keyword}}).subscribe({
-      next: (data) => {
-        this.onSearch.next(data);
-      },
-      error: (error) => this.onSearch.next(error)
-    });
+    // return firstValueFrom(this.httpClient.get<Deal[]>(AppConstants.DEALS_API_URL, {headers, params: {keyword}}));
+
+    return firstValueFrom(this.httpClient.get<Deal[]>(environment.rooturl + AppConstants.DEALS_API_URL, {headers, params: {keyword}}));
+
   }
 }
 
