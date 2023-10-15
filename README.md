@@ -8,7 +8,7 @@ Website is live at: https://sg-deal-finder-gdgdgdrox.vercel.app/#/
 ## Technical Stack
 
 ### Client
-Angular
+Angular  
 Bootstrap
 
 ### Server
@@ -20,7 +20,7 @@ Redis
 DigitalOcean Spaces
 
 ### Deployment
-Angular deployed to Vercel
+Angular deployed to Vercel  
 Spring Boot containerized using Docker and deployed to Railway  
 Github Actions for CI/CD
 
